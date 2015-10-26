@@ -21,4 +21,5 @@ admin.autodiscover()
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^events/', include('events.urls')),
+    url(r'^friends/', include('socialgraph.urls')),
 ]
