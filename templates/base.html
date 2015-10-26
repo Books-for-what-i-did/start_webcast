@@ -4,6 +4,11 @@
 		{% block extar_head %}{% endblock%}
 	</head>
 	<body>
+		<p> Welcome, {{ user.username }}. </p>
+		<form method="POST" class="logout" action="{% url 'logout' %}">
+		{% csrf_token %}
+		<input class="logout" type="submit" value="Logout {{ user.username }}" />
+		</form>
 		<ul>
 			<li><a href="{% url 'ev_tonight' %}">Tonight</a></li>
 			<li><a href="{% url 'ev_archive' %}">Archive</a></li>

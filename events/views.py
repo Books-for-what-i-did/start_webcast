@@ -15,6 +15,7 @@ from events.models import Event, Attendance
 
 # Create your views here.
 
+@login_required
 def tonight(request):
 	events = Event.objects.today().filter(latest=True)
 	#create dictionary
@@ -78,6 +79,7 @@ def toggle_attendance(request):
 		next = request.META['HTTP_REFERER']
 	return HttpResponseRedirect(next)
 
+@login_required
 def archive(request):
 	events = Event.objects.filter()
 	context = {

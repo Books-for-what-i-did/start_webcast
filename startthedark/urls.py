@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.contrib.auth import views
 
 admin.autodiscover()
 
@@ -22,4 +23,6 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^events/', include('events.urls')),
     url(r'^friends/', include('socialgraph.urls')),
+    url(r'^accounts/login/$', 'auth.views.login_user', name='login'),
+    url(r'^logout/$', 'auth.views.logout_user', name='logout'),
 ]
