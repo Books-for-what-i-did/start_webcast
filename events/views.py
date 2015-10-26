@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
+
 #pip install python-dateutil
 from dateutil.parser import parse #date parser
 from django.core.urlresolvers import reverse
@@ -17,16 +18,8 @@ from events.models import Event, Attendance
 def tonight(request):
 	events = Event.objects.today().filter(latest=True)
 	#create dictionary
-	attending = []
-	for event in events:
-		try:
-			Attendance.objects.get(event=event, user=request.user)
-			attending.append(True)
-		except Attendance.DoesNotExist:
-			attending.append(False)
-
 	context = {
-		'events': zip(events, attending),
+		'events': events,
 	}
 	return render_to_response(
 		'events/tonight.html',#template
@@ -75,10 +68,10 @@ def toggle_attendance(request):
 	attendance, created = Attendance.objects.get_or_create(user=request.user, 
 		event=event)
 	if created:
-		messages.success(request, ('You are now attending %s' % event))
+		messages.success(request, ('You are now attending "%s"' % event))
 	else:
 		attendance.delete()
-		messages.success(request, ('You are no longer attending %s"' % event))
+		messages.success(request, ('You are no longer attending "%s"' % event))
 	
 	next = request.POST.get('next', '')
 	if not next:
@@ -87,17 +80,8 @@ def toggle_attendance(request):
 
 def archive(request):
 	events = Event.objects.filter()
-	#create dictionary
-	attending = []
-	for event in events:
-		try:
-			Attendance.objects.get(event=event, user=request.user)
-			attending.append(True)
-		except Attendance.DoesNotExist:
-			attending.append(False)
-
 	context = {
-		'events': zip(events, attending),
+		'events': events, 
 	}
 	return render_to_response(
 		'events/archive.html',#template
