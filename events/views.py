@@ -75,7 +75,7 @@ def toggle_attendance(request):
 	
 	next = request.POST.get('next', '')
 	if not next:
-		next = reverse('ev_tonight')
+		next = request.META['HTTP_REFERER']
 	return HttpResponseRedirect(next)
 
 def archive(request):

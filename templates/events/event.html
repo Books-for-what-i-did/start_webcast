@@ -8,7 +8,8 @@
 {% csrf_token %}
 <input type="hidden" name="event_id" value="{{ event.id }}" />
 {% if attending %}
-	<input class="attendance unattend" type="submit" value="Unattend" />
+	<input class="attendance unattend" type="submit" value="Unattend {{ event.id }}" />
 {% else %}
-	<input class="attendance attend" type="submit" value="Attend" />
+	<input class="attendance attend" type="submit" value="Attend {{ event.id }}" />
 {% endif %}
+</form>
