@@ -1,20 +1,32 @@
 from django.shortcuts import render
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
-from events.models import Event
-from events.forms import EventForm
+#pip install python-dateutil
 from dateutil.parser import parse #date parser
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+
+# ours
+from events.forms import EventForm
+from events.models import Event, Attendance
 
 # Create your views here.
 
 def tonight(request):
 	events = Event.objects.today().filter(latest=True)
 	#create dictionary
+	attending = []
+	for event in events:
+		try:
+			Attendance.objects.get(event=event, user=request.user)
+			attending.append(True)
+		except Attendance.DoesNotExist:
+			attending.append(False)
+
 	context = {
-		'events': events,
+		'events': zip(events, attending),
 	}
 	return render_to_response(
 		'events/tonight.html',#template
@@ -22,6 +34,7 @@ def tonight(request):
 		context_instance = RequestContext(request)
 	)
 
+@login_required
 def create(request):
 	form = EventForm(request.POST or None)
 	if form.is_valid():
@@ -47,5 +60,47 @@ def create(request):
 	return render_to_response(
 		'events/create.html',
 		{'form': form},
+		context_instance = RequestContext(request)
+	)
+#create = login_required(create)
+
+@login_required
+def toggle_attendance(request):
+	try:
+		event_id = int(request.POST['event_id'])
+	except (KeyError, ValueError):
+		raise Http404 #couldn't be found
+	
+	event = get_object_or_404(Event, id=event_id)
+	attendance, created = Attendance.objects.get_or_create(user=request.user, 
+		event=event)
+	if created:
+		messages.success(request, ('You are now attending %s' % event))
+	else:
+		attendance.delete()
+		messages.success(request, ('You are no longer attending %s"' % event))
+	
+	next = request.POST.get('next', '')
+	if not next:
+		next = reverse('ev_tonight')
+	return HttpResponseRedirect(next)
+
+def archive(request):
+	events = Event.objects.filter()
+	#create dictionary
+	attending = []
+	for event in events:
+		try:
+			Attendance.objects.get(event=event, user=request.user)
+			attending.append(True)
+		except Attendance.DoesNotExist:
+			attending.append(False)
+
+	context = {
+		'events': zip(events, attending),
+	}
+	return render_to_response(
+		'events/archive.html',#template
+		context, #user variable
 		context_instance = RequestContext(request)
 	)
