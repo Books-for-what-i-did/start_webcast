@@ -14,14 +14,17 @@ def today():
 
 class EventQuerySet(QuerySet):
 	def today(self):
+		print "In query today"
 		return self.filter(creation_date__range=today())
 
 class EventManager(models.Manager):
-	def get_qeury_set(self):
-		return EventQeurySet(self.model)
+	def get_query_set(self):
+		print "In manager get query set"
+		return EventQuerySet(self.model)
 
 	def today(self):
-		self.get_query_set().today()
+		print "In manager today"
+		return self.get_query_set().today()
 
 #Model's sub class
 class Event(models.Model):
@@ -34,14 +37,15 @@ class Event(models.Model):
 	
 	# link defaults object to our custom manager
 	objects = EventManager()
+
 	def __unicode__(self):
 		return self.description
 	
-	def save(self, **args):
+	def save(self, **kwargs):
 		#objects is default manager
-		Event.objects.filter(latest=True,
-			creator=self.creator).today().update(latest=False)
-		super(Event, self).save(**args)
+		Event.objects.today().filter(latest=True,
+			creator=self.creator).update(latest=False)
+		super(Event, self).save(**kwargs)
 
 class Attendance(models.Model):
 	user = models.ForeignKey(User)
